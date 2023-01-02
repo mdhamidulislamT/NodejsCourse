@@ -1,5 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const path = require('path');
 
 const app = express();
 
@@ -8,18 +9,23 @@ const PORT = 3002;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.get('/products/create', (req, res) =>{
+
+  res.sendFile(path.join(__dirname + "/product.html"));
+});
+
 // create product schema
 const productsSchema = new mongoose.Schema({
   title: {
     type: String,
     required: true,
-    uppercase :true
+    uppercase: true,
   },
   price: {
     type: Number,
     required: [true, "Product price is required"],
-    min: [1, 'too short'],
-    maxlength: [12, "too long"]
+    min: [1, "too short"],
+    maxlength: [12, "too long"],
   },
   description: {
     type: String,
@@ -38,7 +44,9 @@ const productsSchema = new mongoose.Schema({
 const Product = mongoose.model("Products", productsSchema);
 
 app.get("/", (req, res) => {
-  res.send("<h1>Welcome to mongodb home page</h1> <h2> -> nodejs , <br>-> express js, <br>-. MongoDB Compass ,<br>-> mongoose,</h2> <p>how to use mongose using epxress js</p>");
+  res.send(
+    "<h1>Welcome to mongodb home page</h1> <h2> -> nodejs , <br>-> express js, <br>-. MongoDB Compass ,<br>-> mongoose,</h2> <p>how to use mongose using epxress js</p>"
+  );
 });
 
 // Create Product
@@ -88,12 +96,10 @@ app.put("/products/:id", async (req, res) => {
 });
 
 // Get All Products
-app.get('/products', async (req, res) =>{
-
+app.get("/products", async (req, res) => {
   try {
-    
     //const products = await Product.find();
-   /*  const products = await Product.find().select({
+    /*  const products = await Product.find().select({
       title:1,
       price:1,
       description:1
@@ -103,28 +109,29 @@ app.get('/products', async (req, res) =>{
     let productCount;
     const price = req.query.price;
     if (price) {
-       products = await Product.find({price: {
-        $gt: price
-      } });  
+      products = await Product.find({
+        price: {
+          $gt: price,
+        },
+      });
     } else {
-           products = await Product.find().select({createdAt :0});
-           productCount = await Product.find().countDocuments()
+      products = await Product.find().select({ createdAt: 0 });
+      productCount = await Product.find().countDocuments();
     }
-    
+
     if (products) {
       res.status(200).send({
-        success:true,
+        success: true,
         message: "return all products",
-        data : products,
-        productCount : productCount
+        data: products,
+        productCount: productCount,
       });
-    }else{
+    } else {
       res.status(404).send({
         success: false,
-        message: "Products not Found"
+        message: "Products not Found",
       });
     }
-
   } catch (error) {
     res.status(500).send({
       message: error.message,
@@ -133,24 +140,21 @@ app.get('/products', async (req, res) =>{
 });
 
 // Get A Product
-app.get('/products/:id', async (req, res) =>{
-
+app.get("/products/:id", async (req, res) => {
   try {
-    
-    const product = await Product.findById({_id:req.params.id});
+    const product = await Product.findById({ _id: req.params.id });
     if (product) {
       res.status(200).send({
-        success:true,
+        success: true,
         message: "return single product",
-        data : product
+        data: product,
       });
-    }else{
+    } else {
       res.status(404).send({
         success: false,
-        message: "Product not Found"
+        message: "Product not Found",
       });
     }
-
   } catch (error) {
     res.status(500).send({
       message: error.message,
@@ -159,26 +163,23 @@ app.get('/products/:id', async (req, res) =>{
 });
 
 // Get A Product
-app.delete('/products/:id', async (req, res) =>{
-
+app.delete("/products/:id", async (req, res) => {
   try {
     //const result = await Product.deleteOne({_id:req.params.id});
-    const result = await Product.findByIdAndDelete({_id:req.params.id}); // return deleted product
+    const result = await Product.findByIdAndDelete({ _id: req.params.id }); // return deleted product
     if (result) {
       res.status(200).send({
-        success:true,
+        success: true,
         message: "deleted single product",
-        data : result
+        data: result,
       });
-    }else{
+    } else {
       res.status(404).send({
         success: false,
-        message: "single product was not found with!"
+        message: "single product was not found with!",
       });
     }
-  } catch (error) {
-    
-  }
+  } catch (error) {}
 });
 
 // DATABASE -> collections -> document
